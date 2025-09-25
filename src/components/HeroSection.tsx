@@ -98,14 +98,14 @@ export function HeroSection() {
       <div className="relative z-10 text-center text-white px-6 max-w-6xl mx-auto">
         <h1 
           ref={titleRef}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
+          className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight text-black"
         >
           {t('hero.title')}
         </h1>
         
         <p 
           ref={subtitleRef}
-          className="text-xl md:text-2xl lg:text-3xl mb-12 max-w-4xl mx-auto leading-relaxed text-white/90"
+          className="text-xl md:text-2xl lg:text-3xl mb-12 max-w-4xl mx-auto leading-relaxed text-black"
         >
           {t('hero.subtitle')}
         </p>
