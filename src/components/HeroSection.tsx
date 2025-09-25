@@ -95,30 +95,30 @@ export function HeroSection() {
         }}></div>
       </div>
 
-      <div className="relative z-10 text-center text-white px-6 max-w-6xl mx-auto">
-        <h1 
-          ref={titleRef}
-          className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight text-black"
-        >
-          {t('hero.title')}
-        </h1>
-        
-        <p 
-          ref={subtitleRef}
-          className="text-xl md:text-2xl lg:text-3xl mb-12 max-w-4xl mx-auto leading-relaxed text-black"
-        >
-          {t('hero.subtitle')}
-        </p>
-        
-        <button 
-          ref={ctaRef}
-          onClick={scrollToContent}
-          className="group bg-white text-glu-orange px-8 py-4 text-lg font-semibold hover:bg-glu-light transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105"
-        >
-          {t('hero.cta')}
-          <ChevronDown className="inline-block ml-2 group-hover:translate-y-1 transition-transform" size={20} />
-        </button>
-      </div>
+      <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
+  <h1 
+    ref={titleRef}
+    className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight text-black"
+  >
+    {t('hero.title')}
+  </h1>
+  
+  <p 
+    ref={subtitleRef}
+    className="text-xl md:text-2xl lg:text-3xl mb-12 max-w-4xl mx-auto leading-relaxed text-black"
+  >
+    {t('hero.subtitle')}
+  </p>
+  
+  <button 
+    ref={ctaRef}
+    onClick={scrollToContent}
+    className="group bg-white text-glu-orange px-8 py-4 text-lg font-semibold hover:bg-glu-light transition-all duration-300 shadow-2xl hover:shadow-3xl transform hover:scale-105"
+  >
+    {t('hero.cta')}
+    <ChevronDown className="inline-block ml-2 group-hover:translate-y-1 transition-transform" size={20} />
+  </button>
+</div>
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-white/70 animate-bounce">
