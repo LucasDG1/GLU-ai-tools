@@ -62,7 +62,7 @@ export function LoginPage({ onSuccess, onBack }: LoginPageProps) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@glutools.com"
+              placeholder="E-mail"
               className="w-full bg-glu-light border-2 border-glu-gray focus:ring-2 focus:ring-glu-orange focus:border-glu-orange py-4 text-lg"
               required
             />
@@ -113,16 +113,6 @@ export function LoginPage({ onSuccess, onBack }: LoginPageProps) {
             )}
           </Button>
         </form>
-
-        <div className="mt-8 text-center">
-          <div className="bg-glu-green/10 border-2 border-glu-green p-4">
-            <p className="text-glu-green font-semibold mb-2">Demo Credentials:</p>
-            <p className="font-mono bg-white px-4 py-2 border border-glu-green text-gray-900">
-              <strong>Email:</strong> admin@glutools.com<br/>
-              <strong>Password:</strong> admin123
-            </p>
-          </div>
-        </div>
       </div>
     </div>
   );
