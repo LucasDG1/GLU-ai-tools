@@ -25,6 +25,7 @@ export function FileUpload({ toolId }: FileUploadProps) {
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [authorName, setAuthorName] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const apiUrl = `https://${projectId}.supabase.co/functions/v1/make-server-291b20a9`;
@@ -59,13 +60,8 @@ export function FileUpload({ toolId }: FileUploadProps) {
     }
   };
 
-  const handleFiles = async (fileList: File[]) => {
-    if (!authorName.trim()) {
-      toast.error('Please enter your name');
-      return;
-    }
-
-    setUploading(true);
+  const handleFiles = (fileList: File[]) => {
+    const validFiles: File[] = [];
     
     for (const file of fileList) {
       // Validate file type
@@ -86,6 +82,26 @@ export function FileUpload({ toolId }: FileUploadProps) {
         continue;
       }
 
+      validFiles.push(file);
+    }
+
+    setSelectedFiles(prevFiles => [...prevFiles, ...validFiles]);
+  };
+
+  const handleSendFiles = async () => {
+    if (!authorName.trim()) {
+      toast.error('Please enter your name');
+      return;
+    }
+
+    if (selectedFiles.length === 0) {
+      toast.error(t('upload.selectFiles'));
+      return;
+    }
+
+    setUploading(true);
+    
+    for (const file of selectedFiles) {
       try {
         const formData = new FormData();
         formData.append('file', file);
@@ -110,12 +126,17 @@ export function FileUpload({ toolId }: FileUploadProps) {
     }
 
     setUploading(false);
+    setSelectedFiles([]);
     fetchUploads();
     
     // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+  };
+
+  const removeSelectedFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const getFileIcon = (fileType: string) => {
@@ -181,6 +202,48 @@ export function FileUpload({ toolId }: FileUploadProps) {
           disabled={uploading}
         />
       </div>
+
+      {/* Selected Files Preview */}
+      {selectedFiles.length > 0 && (
+        <div className="mt-6 p-4 bg-glu-light border border-glu-gray">
+          <h4 className="font-medium mb-3">{t('upload.selectedFiles')} ({selectedFiles.length})</h4>
+          <div className="space-y-2 mb-4">
+            {selectedFiles.map((file, index) => (
+              <div key={index} className="flex items-center justify-between p-2 bg-white border border-gray-200">
+                <div className="flex items-center space-x-2">
+                  {getFileIcon(file.type)}
+                  <span className="text-sm font-medium">{file.name}</span>
+                  <span className="text-xs text-glu-gray">({formatFileSize(file.size)})</span>
+                </div>
+                <button
+                  onClick={() => removeSelectedFile(index)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+          
+          <Button
+            onClick={handleSendFiles}
+            disabled={uploading || !authorName.trim()}
+            className="w-full bg-glu-green hover:bg-green-600 text-white font-semibold py-3"
+          >
+            {uploading ? (
+              <div className="flex items-center space-x-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Uploading...</span>
+              </div>
+            ) : (
+              <>
+                <Upload size={20} className="mr-2" />
+                {t('upload.send')} ({selectedFiles.length} files)
+              </>
+            )}
+          </Button>
+        </div>
+      )}
 
       {uploading && (
         <div className="mt-4 text-center">

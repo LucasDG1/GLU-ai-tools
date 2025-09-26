@@ -9,10 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Badge } from './ui/badge';
-import { Plus, Edit2, Trash2, Save, MessageCircle, Upload, Star, User } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, MessageCircle, Upload, Star, User, Users } from 'lucide-react';
 import { toast } from 'sonner@2.0.3';
 import { useLanguage } from '../contexts/LanguageContext';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
+import { AdminManagement } from './AdminManagement';
 
 interface CMSPanelProps {
   subjects: Subject[];
@@ -188,7 +189,7 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
   };
 
   const handleDelete = async (toolId: string) => {
-    if (!confirm('Are you sure you want to delete this AI tool? This action cannot be undone.')) {
+    if (!confirm(t('cms.confirmDelete'))) {
       return;
     }
 
@@ -221,6 +222,58 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
   const getToolName = (toolId: string) => {
     const tool = aiTools.find(t => t.id === toolId);
     return tool?.name || 'Unknown Tool';
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!confirm(t('cms.confirmDelete'))) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}/reviews/${reviewId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${publicAnonKey}`
+        }
+      });
+
+      if (response.ok) {
+        toast.success(t('cms.deleteSuccess'));
+        fetchReviews(); // Refresh the reviews list
+      } else {
+        const data = await response.json();
+        toast.error(data.error || t('cms.deleteFailed'));
+      }
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      toast.error(t('cms.deleteFailed'));
+    }
+  };
+
+  const handleDeleteUpload = async (uploadId: string) => {
+    if (!confirm(t('cms.confirmDelete'))) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${apiUrl}/uploads/${uploadId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${publicAnonKey}`
+        }
+      });
+
+      if (response.ok) {
+        toast.success(t('cms.deleteSuccess'));
+        fetchUploads(); // Refresh the uploads list
+      } else {
+        const data = await response.json();
+        toast.error(data.error || t('cms.deleteFailed'));
+      }
+    } catch (error) {
+      console.error('Error deleting upload:', error);
+      toast.error(t('cms.deleteFailed'));
+    }
   };
 
   const toolsBySubject = subjects.map(subject => ({
@@ -375,7 +428,7 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-        <TabsList className="grid w-full grid-cols-4 bg-glu-light">
+        <TabsList className="grid w-full grid-cols-5 bg-glu-light">
           <TabsTrigger value="tools" className="data-[state=active]:bg-glu-orange data-[state=active]:text-white">
             {t('cms.tools')}
           </TabsTrigger>
@@ -385,7 +438,10 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
           <TabsTrigger value="uploads" className="data-[state=active]:bg-glu-orange data-[state=active]:text-white">
             {t('cms.uploads')}
           </TabsTrigger>
-          <TabsTrigger value="stats" className="data-[state=active]:bg-glu-green data-[state=active]:text-white">
+          <TabsTrigger value="admins" className="data-[state=active]:bg-glu-green data-[state=active]:text-white">
+            {t('cms.admins')}
+          </TabsTrigger>
+          <TabsTrigger value="stats" className="data-[state=active]:bg-glu-orange data-[state=active]:text-white">
             Statistics
           </TabsTrigger>
         </TabsList>
@@ -486,7 +542,17 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
                             </div>
                           </div>
                         </div>
-                        <Badge variant="outline">{getToolName(review.tool_id)}</Badge>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="outline">{getToolName(review.tool_id)}</Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeleteReview(review.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
                       </div>
                       <p className="text-gray-700 leading-relaxed">{review.comment}</p>
                       <p className="text-sm text-glu-gray mt-2">
@@ -517,8 +583,18 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
               {uploads.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {uploads.map((upload) => (
-                    <div key={upload.id} className="bg-glu-light p-4">
-                      <div className="flex items-center space-x-2 mb-3">
+                    <div key={upload.id} className="bg-glu-light p-4 relative">
+                      <div className="absolute top-2 right-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteUpload(upload.id)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                        >
+                          <Trash2 size={12} />
+                        </Button>
+                      </div>
+                      <div className="flex items-center space-x-2 mb-3 pr-10">
                         <Upload size={16} className="text-glu-orange" />
                         <p className="font-medium text-gray-900 truncate">{upload.file_name}</p>
                       </div>
@@ -538,6 +614,10 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="admins" className="space-y-6">
+          <AdminManagement />
         </TabsContent>
 
         <TabsContent value="stats">

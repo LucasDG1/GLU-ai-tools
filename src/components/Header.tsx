@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Menu, X, Settings, Home, Globe } from 'lucide-react';
+import { Search, Menu, X, Settings, Home, Globe, LogOut } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -15,6 +16,7 @@ export function Header({ onSearch, searchQuery, currentView, setCurrentView }: H
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { language, setLanguage, t } = useLanguage();
+  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,9 +30,15 @@ export function Header({ onSearch, searchQuery, currentView, setCurrentView }: H
     onSearch(e.target.value);
   };
 
+  const handleLogout = () => {
+    logout();
+    setCurrentView('home');
+    setMobileMenuOpen(false);
+  };
+
   const navButtons = [
     { id: 'home', label: t('header.aiTools'), icon: Home },
-    { id: 'cms', label: t('header.cms'), icon: Settings }
+    { id: 'cms' as const, label: t('header.cms'), icon: Settings }
   ];
 
   return (
@@ -41,26 +49,61 @@ export function Header({ onSearch, searchQuery, currentView, setCurrentView }: H
           : 'bg-white/90 backdrop-blur-sm'
       }`}
     >
-      <div className="max-w-full px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-glu-orange to-glu-green flex items-center justify-center">
-              <span className="text-white font-bold text-xl">GLU</span>
+          <button 
+            onClick={() => setCurrentView('home')}
+            className="flex items-center space-x-3 group"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-glu-orange to-glu-green flex items-center justify-center group-hover:scale-105 transition-transform">
+              <span className="text-white font-bold text-lg">GLU</span>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Grafisch Lyceum Utrecht</h1>
-              <p className="text-sm text-glu-gray">{t('header.tagline')}</p>
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-bold text-gray-900 group-hover:text-glu-orange transition-colors">GLU Tools</h1>
+              <p className="text-xs text-glu-gray">{t('header.tagline')}</p>
             </div>
-          </div>
+          </button>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center space-x-6">
+            {/* Search Bar */}
+            {currentView === 'home' && (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-glu-gray" size={16} />
+                <Input
+                  type="text"
+                  placeholder={t('header.searchPlaceholder')}
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className="pl-10 pr-4 py-2 w-80 bg-glu-light border-0 focus:ring-2 focus:ring-glu-orange text-sm"
+                />
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex items-center space-x-2">
+              {navButtons.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => setCurrentView(id)}
+                  className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                    currentView === id
+                      ? 'bg-glu-orange text-white'
+                      : 'text-gray-700 hover:text-glu-orange hover:bg-glu-light'
+                  }`}
+                >
+                  <Icon size={16} />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+
             {/* Language Toggle */}
             <div className="flex items-center bg-glu-light">
               <button
                 onClick={() => setLanguage('nl')}
-                className={`px-3 py-2 text-sm font-medium transition-colors ${
+                className={`px-3 py-2 text-xs font-medium transition-colors ${
                   language === 'nl' 
                     ? 'bg-glu-orange text-white' 
                     : 'text-glu-gray hover:text-gray-900'
@@ -70,7 +113,7 @@ export function Header({ onSearch, searchQuery, currentView, setCurrentView }: H
               </button>
               <button
                 onClick={() => setLanguage('en')}
-                className={`px-3 py-2 text-sm font-medium transition-colors ${
+                className={`px-3 py-2 text-xs font-medium transition-colors ${
                   language === 'en' 
                     ? 'bg-glu-orange text-white' 
                     : 'text-glu-gray hover:text-gray-900'
@@ -80,59 +123,38 @@ export function Header({ onSearch, searchQuery, currentView, setCurrentView }: H
               </button>
             </div>
 
-            {/* Navigation Buttons */}
-            {navButtons.map(({ id, label, icon: Icon }) => (
+            {/* Logout Button */}
+            {isAuthenticated && (
               <button
-                key={id}
-                onClick={() => setCurrentView(id as any)}
-                className={`flex items-center space-x-2 px-4 py-2 font-medium transition-all duration-200 ${
-                  currentView === id
-                    ? 'bg-glu-orange text-white shadow-lg'
-                    : 'text-gray-700 hover:text-glu-orange hover:bg-glu-light'
-                }`}
+                onClick={handleLogout}
+                className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:text-red-600 hover:bg-red-50 transition-colors"
               >
-                <Icon size={18} />
-                <span>{label}</span>
+                <LogOut size={16} />
+                <span>Logout</span>
               </button>
-            ))}
+            )}
           </div>
-
-          {/* Search Bar - Desktop */}
-          {currentView === 'home' && (
-            <div className="hidden lg:flex items-center flex-1 max-w-md ml-8">
-              <div className="relative w-full">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-glu-gray" size={20} />
-                <Input
-                  type="text"
-                  placeholder={t('header.searchPlaceholder')}
-                  value={searchQuery}
-                  onChange={handleSearchChange}
-                  className="pl-12 pr-4 py-3 bg-glu-light border-0 focus:ring-2 focus:ring-glu-orange text-gray-900 placeholder-glu-gray"
-                />
-              </div>
-            </div>
-          )}
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2 text-gray-700 hover:text-glu-orange transition-colors"
           >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
 
         {/* Mobile Search Bar */}
         {currentView === 'home' && (
-          <div className="lg:hidden pb-4">
+          <div className="lg:hidden pb-3">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-glu-gray" size={20} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-glu-gray" size={16} />
               <Input
                 type="text"
                 placeholder={t('header.searchPlaceholder')}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className="pl-12 pr-4 py-3 bg-glu-light border-0 focus:ring-2 focus:ring-glu-orange text-gray-900 placeholder-glu-gray w-full"
+                className="pl-10 pr-4 py-2 bg-glu-light border-0 focus:ring-2 focus:ring-glu-orange w-full text-sm"
               />
             </div>
           </div>
@@ -140,15 +162,34 @@ export function Header({ onSearch, searchQuery, currentView, setCurrentView }: H
 
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-gray-200 py-4">
-            <div className="flex flex-col space-y-4">
+          <div className="lg:hidden bg-white border-t border-gray-200 py-3">
+            <div className="flex flex-col space-y-2">
+              {/* Navigation Buttons Mobile */}
+              {navButtons.map(({ id, label, icon: Icon }) => (
+                <button
+                  key={id}
+                  onClick={() => {
+                    setCurrentView(id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium transition-all duration-200 w-full ${
+                    currentView === id
+                      ? 'bg-glu-orange text-white'
+                      : 'text-gray-700 hover:text-glu-orange hover:bg-glu-light'
+                  }`}
+                >
+                  <Icon size={16} />
+                  <span>{label}</span>
+                </button>
+              ))}
+
               {/* Language Toggle Mobile */}
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <Globe size={18} className="text-glu-gray" />
+              <div className="flex items-center justify-center space-x-2 py-2">
+                <Globe size={16} className="text-glu-gray" />
                 <div className="flex bg-glu-light">
                   <button
                     onClick={() => setLanguage('nl')}
-                    className={`px-4 py-2 text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 text-xs font-medium transition-colors ${
                       language === 'nl' 
                         ? 'bg-glu-orange text-white' 
                         : 'text-glu-gray hover:text-gray-900'
@@ -158,7 +199,7 @@ export function Header({ onSearch, searchQuery, currentView, setCurrentView }: H
                   </button>
                   <button
                     onClick={() => setLanguage('en')}
-                    className={`px-4 py-2 text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 text-xs font-medium transition-colors ${
                       language === 'en' 
                         ? 'bg-glu-orange text-white' 
                         : 'text-glu-gray hover:text-gray-900'
@@ -169,24 +210,16 @@ export function Header({ onSearch, searchQuery, currentView, setCurrentView }: H
                 </div>
               </div>
 
-              {/* Navigation Buttons Mobile */}
-              {navButtons.map(({ id, label, icon: Icon }) => (
+              {/* Logout Button Mobile */}
+              {isAuthenticated && (
                 <button
-                  key={id}
-                  onClick={() => {
-                    setCurrentView(id as any);
-                    setMobileMenuOpen(false);
-                  }}
-                  className={`flex items-center space-x-3 px-6 py-3 font-medium transition-all duration-200 w-full ${
-                    currentView === id
-                      ? 'bg-glu-orange text-white'
-                      : 'text-gray-700 hover:text-glu-orange hover:bg-glu-light'
-                  }`}
+                  onClick={handleLogout}
+                  className="flex items-center space-x-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
                 >
-                  <Icon size={18} />
-                  <span>{label}</span>
+                  <LogOut size={16} />
+                  <span>Logout</span>
                 </button>
-              ))}
+              )}
             </div>
           </div>
         )}

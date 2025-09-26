@@ -4,7 +4,9 @@ import { SubjectSection } from './components/SubjectSection';
 import { SearchResults } from './components/SearchResults';
 import { CMSPanel } from './components/CMSPanel';
 import { HeroSection } from './components/HeroSection';
+import { LoginPage } from './components/LoginPage';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Toaster } from './components/ui/sonner';
 import { projectId, publicAnonKey } from './utils/supabase/info';
 
@@ -26,12 +28,14 @@ export interface AITool {
 
 function AppContent() {
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [aiTools, setAiTools] = useState<AITool[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<AITool[]>([]);
   const [currentView, setCurrentView] = useState<'home' | 'cms'>('home');
   const [loading, setLoading] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
 
   const apiUrl = `https://${projectId}.supabase.co/functions/v1/make-server-291b20a9`;
 
@@ -86,6 +90,24 @@ function AppContent() {
     fetchData();
   };
 
+  const handleViewChange = (view: 'home' | 'cms') => {
+    if (view === 'cms' && !isAuthenticated) {
+      setShowLogin(true);
+    } else {
+      setCurrentView(view);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setShowLogin(false);
+    setCurrentView('cms');
+  };
+
+  const handleLoginBack = () => {
+    setShowLogin(false);
+    setCurrentView('home');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-glu-orange to-glu-green flex items-center justify-center">
@@ -97,16 +119,20 @@ function AppContent() {
     );
   }
 
+  if (showLogin) {
+    return <LoginPage onSuccess={handleLoginSuccess} onBack={handleLoginBack} />;
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Header 
         onSearch={handleSearch}
         searchQuery={searchQuery}
         currentView={currentView}
-        setCurrentView={setCurrentView}
+        setCurrentView={handleViewChange}
       />
       
-      <main className="pt-20">
+      <main className="pt-16">
         {currentView === 'home' && (
           <>
             <HeroSection />
@@ -120,7 +146,7 @@ function AppContent() {
                 />
               </div>
             ) : (
-              <div>
+              <div data-section="subjects">
                 {subjects.map((subject) => (
                   <SubjectSection
                     key={subject.id}
@@ -134,7 +160,7 @@ function AppContent() {
           </>
         )}
 
-        {currentView === 'cms' && (
+        {currentView === 'cms' && isAuthenticated && (
           <div className="px-6 lg:px-8 py-16">
             <CMSPanel 
               subjects={subjects}
@@ -207,8 +233,10 @@ function AppContent() {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AppContent />
-    </LanguageProvider>
+    <AuthProvider>
+      <LanguageProvider>
+        <AppContent />
+      </LanguageProvider>
+    </AuthProvider>
   );
 }

@@ -55,6 +55,10 @@ const translations = {
     'upload.description': 'Deel je creaties gemaakt met deze AI tool',
     'upload.dragDrop': 'Sleep bestanden hierheen of klik om te uploaden',
     'upload.submit': 'Uploaden',
+    'upload.selectedFiles': 'Geselecteerde bestanden',
+    'upload.send': 'Versturen',
+    'upload.remove': 'Verwijderen',
+    'upload.selectFiles': 'Selecteer eerst bestanden',
 
     // CMS
     'cms.title': 'Content Management Systeem',
@@ -62,17 +66,49 @@ const translations = {
     'cms.tools': 'AI Tools',
     'cms.reviews': 'Beoordelingen',
     'cms.uploads': 'Uploads',
+    'cms.admins': 'Beheerders',
     'cms.add': 'Toevoegen',
     'cms.edit': 'Bewerken',
     'cms.delete': 'Verwijderen',
     'cms.save': 'Opslaan',
     'cms.cancel': 'Annuleren',
+    'cms.confirmDelete': 'Weet je zeker dat je dit wilt verwijderen?',
+    'cms.deleteSuccess': 'Succesvol verwijderd!',
+    'cms.deleteFailed': 'Verwijderen mislukt',
+
+    // Admin Management
+    'admin.title': 'Beheerders beheren',
+    'admin.addAdmin': 'Beheerder toevoegen',
+    'admin.editAdmin': 'Beheerder bewerken',
+    'admin.name': 'Naam',
+    'admin.email': 'E-mail',
+    'admin.password': 'Wachtwoord',
+    'admin.created': 'Aangemaakt',
+    'admin.actions': 'Acties',
+    'admin.superAdmin': 'Super Admin',
+    'admin.noAdmins': 'Geen beheerders gevonden',
+    'admin.cannotDelete': 'Kan deze beheerder niet verwijderen',
+    'admin.emailExists': 'Er bestaat al een beheerder met dit e-mailadres',
+    'admin.onlyOwnAccount': 'Je kunt alleen je eigen account bewerken',
+    'admin.onlySuperAdmin': 'Alleen super beheerders kunnen nieuwe accounts aanmaken',
+    'admin.onlyDeleteSuper': 'Alleen super beheerders kunnen accounts verwijderen',
 
     // Footer
     'footer.description': 'Studenten ondersteunen met AI-tools voor creatief onderwijs en professionele ontwikkeling.',
     'footer.quickLinks': 'Snelle links',
     'footer.subjects': 'Vakken',
     'footer.copyright': '© 2024 Grafisch Lyceum Utrecht. Alle rechten voorbehouden.',
+
+    // Auth
+    'auth.login': 'Inloggen',
+    'auth.logout': 'Uitloggen',
+    'auth.email': 'E-mailadres',
+    'auth.password': 'Wachtwoord',
+    'auth.signIn': 'Aanmelden',
+    'auth.invalidCredentials': 'Ongeldige inloggegevens',
+    'auth.adminLogin': 'Admin Login',
+    'auth.accessCms': 'Toegang tot het Content Management Systeem',
+    'auth.backToHome': 'Terug naar home',
 
     // Common
     'common.loading': 'Laden...',
@@ -128,6 +164,10 @@ const translations = {
     'upload.description': 'Share your creations made with this AI tool',
     'upload.dragDrop': 'Drag files here or click to upload',
     'upload.submit': 'Upload',
+    'upload.selectedFiles': 'Selected files',
+    'upload.send': 'Send',
+    'upload.remove': 'Remove',
+    'upload.selectFiles': 'Please select files first',
 
     // CMS
     'cms.title': 'Content Management System',
@@ -135,17 +175,49 @@ const translations = {
     'cms.tools': 'AI Tools',
     'cms.reviews': 'Reviews',
     'cms.uploads': 'Uploads',
+    'cms.admins': 'Admins',
     'cms.add': 'Add',
     'cms.edit': 'Edit',
     'cms.delete': 'Delete',
     'cms.save': 'Save',
     'cms.cancel': 'Cancel',
+    'cms.confirmDelete': 'Are you sure you want to delete this?',
+    'cms.deleteSuccess': 'Successfully deleted!',
+    'cms.deleteFailed': 'Failed to delete',
+
+    // Admin Management
+    'admin.title': 'Manage Administrators',
+    'admin.addAdmin': 'Add Administrator',
+    'admin.editAdmin': 'Edit Administrator',
+    'admin.name': 'Name',
+    'admin.email': 'Email',
+    'admin.password': 'Password',
+    'admin.created': 'Created',
+    'admin.actions': 'Actions',
+    'admin.superAdmin': 'Super Admin',
+    'admin.noAdmins': 'No administrators found',
+    'admin.cannotDelete': 'Cannot delete this administrator',
+    'admin.emailExists': 'An administrator with this email already exists',
+    'admin.onlyOwnAccount': 'You can only edit your own account',
+    'admin.onlySuperAdmin': 'Only super administrators can create new accounts',
+    'admin.onlyDeleteSuper': 'Only super administrators can delete accounts',
 
     // Footer
     'footer.description': 'Empowering students with AI tools for creative education and professional development.',
     'footer.quickLinks': 'Quick Links',
     'footer.subjects': 'Subjects',
     'footer.copyright': '© 2024 Grafisch Lyceum Utrecht. All rights reserved.',
+
+    // Auth
+    'auth.login': 'Login',
+    'auth.logout': 'Logout',
+    'auth.email': 'Email address',
+    'auth.password': 'Password',
+    'auth.signIn': 'Sign In',
+    'auth.invalidCredentials': 'Invalid email or password',
+    'auth.adminLogin': 'Admin Login',
+    'auth.accessCms': 'Access the Content Management System',
+    'auth.backToHome': 'Back to home',
 
     // Common
     'common.loading': 'Loading...',

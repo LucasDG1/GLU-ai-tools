@@ -43,6 +43,23 @@ async function initializeData() {
       console.log('Initialized default subjects');
     }
 
+    // Initialize default admin account
+    const existingAdmins = await kv.get('admins');
+    if (!existingAdmins) {
+      const defaultAdmins = [
+        {
+          id: '1',
+          name: 'GLU Admin',
+          email: 'admin@glutools.com',
+          password: 'admin123',
+          created_at: new Date().toISOString(),
+          is_super_admin: true
+        }
+      ];
+      await kv.set('admins', defaultAdmins);
+      console.log('Initialized default admin account');
+    }
+
     // Initialize some sample AI tools
     const existingTools = await kv.get('ai_tools');
     if (!existingTools) {
@@ -405,6 +422,193 @@ app.get("/make-server-291b20a9/uploads", async (c) => {
   } catch (error) {
     console.log('Error fetching all uploads:', error);
     return c.json({ error: 'Failed to fetch uploads' }, 500);
+  }
+});
+
+// Delete review (for admin)
+app.delete("/make-server-291b20a9/reviews/:reviewId", async (c) => {
+  try {
+    const reviewId = c.req.param('reviewId');
+    const reviews = await kv.get('reviews') || [];
+    const filteredReviews = reviews.filter(review => review.id !== reviewId);
+    
+    if (reviews.length === filteredReviews.length) {
+      return c.json({ error: 'Review not found' }, 404);
+    }
+
+    await kv.set('reviews', filteredReviews);
+    return c.json({ success: true });
+  } catch (error) {
+    console.log('Error deleting review:', error);
+    return c.json({ error: 'Failed to delete review' }, 500);
+  }
+});
+
+// Delete upload (for admin)
+app.delete("/make-server-291b20a9/uploads/:uploadId", async (c) => {
+  try {
+    const uploadId = c.req.param('uploadId');
+    const uploads = await kv.get('uploads') || [];
+    const filteredUploads = uploads.filter(upload => upload.id !== uploadId);
+    
+    if (uploads.length === filteredUploads.length) {
+      return c.json({ error: 'Upload not found' }, 404);
+    }
+
+    await kv.set('uploads', filteredUploads);
+    return c.json({ success: true });
+  } catch (error) {
+    console.log('Error deleting upload:', error);
+    return c.json({ error: 'Failed to delete upload' }, 500);
+  }
+});
+
+// Admin management endpoints
+// Login endpoint
+app.post("/make-server-291b20a9/auth/login", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email, password } = body;
+    
+    if (!email || !password) {
+      return c.json({ error: 'Email and password are required' }, 400);
+    }
+
+    const admins = await kv.get('admins') || [];
+    const admin = admins.find(a => a.email === email && a.password === password);
+    
+    if (!admin) {
+      return c.json({ error: 'Invalid credentials' }, 401);
+    }
+
+    // Don't return password in response
+    const { password: _, ...adminData } = admin;
+    return c.json({ success: true, admin: adminData });
+  } catch (error) {
+    console.log('Error during login:', error);
+    return c.json({ error: 'Login failed' }, 500);
+  }
+});
+
+// Get all admins
+app.get("/make-server-291b20a9/admins", async (c) => {
+  try {
+    const admins = await kv.get('admins') || [];
+    // Remove passwords from response
+    const safeAdmins = admins.map(({ password, ...admin }) => admin);
+    return c.json({ admins: safeAdmins });
+  } catch (error) {
+    console.log('Error fetching admins:', error);
+    return c.json({ error: 'Failed to fetch admins' }, 500);
+  }
+});
+
+// Create new admin
+app.post("/make-server-291b20a9/admins", async (c) => {
+  try {
+    const body = await c.req.json();
+    const { name, email, password } = body;
+    
+    if (!name || !email || !password) {
+      return c.json({ error: 'Name, email, and password are required' }, 400);
+    }
+
+    const admins = await kv.get('admins') || [];
+    
+    // Check if email already exists
+    if (admins.some(admin => admin.email === email)) {
+      return c.json({ error: 'Admin with this email already exists' }, 400);
+    }
+
+    const newAdmin = {
+      id: Date.now().toString(),
+      name,
+      email,
+      password,
+      created_at: new Date().toISOString(),
+      is_super_admin: false
+    };
+
+    admins.push(newAdmin);
+    await kv.set('admins', admins);
+    
+    // Don't return password in response
+    const { password: _, ...adminData } = newAdmin;
+    return c.json({ admin: adminData });
+  } catch (error) {
+    console.log('Error creating admin:', error);
+    return c.json({ error: 'Failed to create admin' }, 500);
+  }
+});
+
+// Update admin
+app.put("/make-server-291b20a9/admins/:id", async (c) => {
+  try {
+    const id = c.req.param('id');
+    const body = await c.req.json();
+    const { name, email, password } = body;
+
+    const admins = await kv.get('admins') || [];
+    const adminIndex = admins.findIndex(admin => admin.id === id);
+    
+    if (adminIndex === -1) {
+      return c.json({ error: 'Admin not found' }, 404);
+    }
+
+    // Check if email is being changed and already exists
+    if (email && email !== admins[adminIndex].email) {
+      if (admins.some(admin => admin.email === email && admin.id !== id)) {
+        return c.json({ error: 'Admin with this email already exists' }, 400);
+      }
+    }
+
+    // Update admin data
+    admins[adminIndex] = {
+      ...admins[adminIndex],
+      name: name || admins[adminIndex].name,
+      email: email || admins[adminIndex].email,
+      password: password || admins[adminIndex].password,
+    };
+
+    await kv.set('admins', admins);
+    
+    // Don't return password in response
+    const { password: _, ...adminData } = admins[adminIndex];
+    return c.json({ admin: adminData });
+  } catch (error) {
+    console.log('Error updating admin:', error);
+    return c.json({ error: 'Failed to update admin' }, 500);
+  }
+});
+
+// Delete admin
+app.delete("/make-server-291b20a9/admins/:id", async (c) => {
+  try {
+    const id = c.req.param('id');
+    const admins = await kv.get('admins') || [];
+    
+    const adminToDelete = admins.find(admin => admin.id === id);
+    if (!adminToDelete) {
+      return c.json({ error: 'Admin not found' }, 404);
+    }
+
+    // Prevent deletion of super admin
+    if (adminToDelete.is_super_admin) {
+      return c.json({ error: 'Cannot delete super admin account' }, 403);
+    }
+
+    const filteredAdmins = admins.filter(admin => admin.id !== id);
+    
+    // Ensure at least one admin remains
+    if (filteredAdmins.length === 0) {
+      return c.json({ error: 'Cannot delete the last admin account' }, 403);
+    }
+
+    await kv.set('admins', filteredAdmins);
+    return c.json({ success: true });
+  } catch (error) {
+    console.log('Error deleting admin:', error);
+    return c.json({ error: 'Failed to delete admin' }, 500);
   }
 });
 
