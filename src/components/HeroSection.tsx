@@ -11,66 +11,69 @@ export function HeroSection() {
   const animatedRef = useRef(false);
 
   useEffect(() => {
+    let ctx: any;
+    
     // GSAP animations - only run once
     const initAnimations = async () => {
-      if (animatedRef.current) return; // Prevent re-animation
+      if (animatedRef.current || !titleRef.current) return; // Prevent re-animation
       
-      const { gsap } = await import('gsap');
-      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-      
-      gsap.registerPlugin(ScrollTrigger);
+      try {
+        const { gsap } = await import('gsap');
+        
+        ctx = gsap.context(() => {
+          // Initial states
+          gsap.set([titleRef.current, subtitleRef.current, ctaRef.current], {
+            opacity: 0,
+            y: 30  // Reduced from 60px
+          });
 
-      // Initial states
-      gsap.set([titleRef.current, subtitleRef.current, ctaRef.current], {
-        opacity: 0,
-        y: 60
-      });
-
-      // Animation timeline - run only once
-      const tl = gsap.timeline({
-        onComplete: () => {
-          animatedRef.current = true; // Mark as animated
+          // Animation timeline - run only once, simplified
+          const tl = gsap.timeline({
+            onComplete: () => {
+              animatedRef.current = true; // Mark as animated
+            }
+          });
+          
+          tl.to(titleRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,  // Reduced from 1s
+            ease: "power2.out"
+          })
+          .to(subtitleRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.5,  // Reduced from 0.8s
+            ease: "power2.out"
+          }, "-=0.3")  // Reduced overlap
+          .to(ctaRef.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.4,  // Reduced from 0.6s
+            ease: "power2.out"
+          }, "-=0.2");  // Reduced overlap
+        }, heroRef);
+      } catch (error) {
+        console.warn('GSAP animation failed to load:', error);
+        // Fallback: show content immediately
+        if (titleRef.current) {
+          [titleRef.current, subtitleRef.current, ctaRef.current].forEach(el => {
+            if (el) {
+              el.style.opacity = '1';
+              el.style.transform = 'translateY(0)';
+            }
+          });
         }
-      });
-      
-      tl.to(titleRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: "power3.out"
-      })
-      .to(subtitleRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: "power3.out"
-      }, "-=0.6")
-      .to(ctaRef.current, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power3.out"
-      }, "-=0.4");
-
-      // Subtle parallax background effect - no repeat
-      gsap.set(heroRef.current, {
-        backgroundPosition: "50% 50%"
-      });
-      
-      gsap.to(heroRef.current, {
-        backgroundPosition: "50% 60%",
-        ease: "none",
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1,
-          once: true // Only trigger once
-        }
-      });
+      }
     };
 
     initAnimations();
+
+    return () => {
+      if (ctx) {
+        ctx.revert();
+      }
+    };
   }, []);
 
   const scrollToContent = () => {
@@ -132,7 +135,7 @@ export function HeroSection() {
           <button 
             ref={ctaRef}
             onClick={scrollToContent}
-            className="group bg-glu-orange text-white px-12 py-6 text-xl font-semibold hover:bg-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="group bg-glu-orange text-white px-12 py-6 text-xl font-semibold hover:bg-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-102"
           >
             {t('hero.cta')}
             <ChevronDown className="inline-block ml-3 group-hover:translate-y-1 transition-transform" size={24} />
@@ -141,7 +144,7 @@ export function HeroSection() {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-glu-orange animate-bounce">
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-glu-orange animate-gentle-bounce">
         <ChevronDown size={32} />
       </div>
     </section>

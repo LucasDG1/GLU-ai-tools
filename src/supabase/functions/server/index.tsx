@@ -71,7 +71,8 @@ async function initializeData() {
           description: 'AI-powered design assistant integrated into Figma',
           advantages: ['Streamlines design workflow', 'Generates design variations', 'Smart layout suggestions'],
           disadvantages: ['Requires Figma subscription', 'Limited to Figma ecosystem'],
-          image_url: ''
+          image_url: '',
+          link_url: 'https://www.figma.com/'
         },
         {
           id: '2',
@@ -80,7 +81,8 @@ async function initializeData() {
           description: 'AI pair programmer that helps write code faster',
           advantages: ['Code completion', 'Supports multiple languages', 'Learns from context'],
           disadvantages: ['Subscription required', 'May generate incorrect code'],
-          image_url: ''
+          image_url: '',
+          link_url: 'https://github.com/features/copilot'
         },
         {
           id: '3',
@@ -89,7 +91,8 @@ async function initializeData() {
           description: 'AI assistant for content creation and marketing copy',
           advantages: ['Versatile content generation', 'Multiple languages', 'Creative writing'],
           disadvantages: ['May lack brand consistency', 'Requires fact-checking'],
-          image_url: ''
+          image_url: '',
+          link_url: 'https://chat.openai.com/'
         }
       ];
       await kv.set('ai_tools', sampleTools);
@@ -147,7 +150,7 @@ app.get("/make-server-291b20a9/ai-tools/:subjectId", async (c) => {
 app.post("/make-server-291b20a9/ai-tools", async (c) => {
   try {
     const body = await c.req.json();
-    const { subject_id, name, description, advantages, disadvantages, image_url } = body;
+    const { subject_id, name, description, advantages, disadvantages, image_url, link_url } = body;
     
     if (!subject_id || !name || !description) {
       return c.json({ error: 'Missing required fields' }, 400);
@@ -161,7 +164,8 @@ app.post("/make-server-291b20a9/ai-tools", async (c) => {
       description,
       advantages: advantages || [],
       disadvantages: disadvantages || [],
-      image_url: image_url || ''
+      image_url: image_url || '',
+      link_url: link_url || ''
     };
 
     tools.push(newTool);
@@ -179,7 +183,7 @@ app.put("/make-server-291b20a9/ai-tools/:id", async (c) => {
   try {
     const id = c.req.param('id');
     const body = await c.req.json();
-    const { subject_id, name, description, advantages, disadvantages, image_url } = body;
+    const { subject_id, name, description, advantages, disadvantages, image_url, link_url } = body;
 
     const tools = await kv.get('ai_tools') || [];
     const toolIndex = tools.findIndex(tool => tool.id === id);
@@ -195,7 +199,8 @@ app.put("/make-server-291b20a9/ai-tools/:id", async (c) => {
       description: description || tools[toolIndex].description,
       advantages: advantages || tools[toolIndex].advantages,
       disadvantages: disadvantages || tools[toolIndex].disadvantages,
-      image_url: image_url !== undefined ? image_url : tools[toolIndex].image_url
+      image_url: image_url !== undefined ? image_url : tools[toolIndex].image_url,
+      link_url: link_url !== undefined ? link_url : tools[toolIndex].link_url
     };
 
     await kv.set('ai_tools', tools);
@@ -609,6 +614,603 @@ app.delete("/make-server-291b20a9/admins/:id", async (c) => {
   } catch (error) {
     console.log('Error deleting admin:', error);
     return c.json({ error: 'Failed to delete admin' }, 500);
+  }
+});
+
+// Bulk import AI tools
+app.post("/make-server-291b20a9/bulk-import-tools", async (c) => {
+  try {
+    const newTools = [
+      // Design/Development
+      {
+        id: 'adobe-firefly',
+        subject_id: 'design',
+        name: 'Adobe Firefly',
+        description: 'AI-powered creative tools integrated directly into Adobe Creative Suite',
+        advantages: [
+          'Werkt direct in Photoshop/Illustrator',
+          'Goede generative fill functionaliteit',
+          'Commercieel bruikbaar met veilige datasets',
+          'Professionele integratie'
+        ],
+        disadvantages: [
+          'Soms voorspelbare resultaten',
+          'Beperkt in zeer unieke stijlen',
+          'Hoge licentiekosten Adobe Suite'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1740174459730-33a1983b51af?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZG9iZSUyMGZpcmVmbHklMjBBSSUyMGRlc2lnbnxlbnwxfHx8fDE3NTkyMTU2MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+        link_url: 'https://firefly.adobe.com/'
+      },
+      {
+        id: 'figma-ai-tools',
+        subject_id: 'design',
+        name: 'Figma AI',
+        description: 'AI-powered design features within Figma for faster prototyping and design workflows',
+        advantages: [
+          'Versnelt prototyping workflow',
+          'Automatische layout suggesties',
+          'Copy en content suggesties',
+          'Makkelijk te integreren in bestaande workflow'
+        ],
+        disadvantages: [
+          'Outputs zijn vaak generiek',
+          'Nog in ontwikkeling (niet alles stabiel)',
+          'Beperkt tot Figma ecosystem'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1653647054667-c99dc7f914ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmaWdtYSUyMGRlc2lnbiUyMHRvb2x8ZW58MXx8fHwxNzU5MTcxODY2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+        link_url: 'https://www.figma.com/'
+      },
+      {
+        id: 'looka-brand',
+        subject_id: 'design',
+        name: 'Looka',
+        description: 'AI-powered logo and brand identity generator for quick professional branding',
+        advantages: [
+          'Snelle logo generatie',
+          'Complete branding kits in minuten',
+          'Betaalbaar voor startups',
+          'Gebruiksvriendelijke interface'
+        ],
+        disadvantages: [
+          'Logo\'s kunnen standaard aanvoelen',
+          'Minder geschikt voor high-end branding',
+          'Beperkte customization opties'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1670341445620-cc35bf57fe56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsb2dvJTIwZGVzaWduJTIwYnJhbmRpbmd8ZW58MXx8fHwxNzU5MTQwNTM2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      
+      // Marketing
+      {
+        id: 'canva-ai-marketing',
+        subject_id: 'marketing',
+        name: 'Canva AI',
+        description: 'AI-powered design and content creation platform for marketing materials',
+        advantages: [
+          'Supersnel visuals en teksten maken',
+          'Enorme template bibliotheek',
+          'Makkelijk te gebruiken interface',
+          'Ingebouwde stock foto\'s en elementen'
+        ],
+        disadvantages: [
+          'Generieke look die herkenbaar is',
+          'Minder geschikt voor unieke campagnes',
+          'Beperkte customization voor professioneel werk'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1649091245823-18be815da4f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYW52YSUyMGRlc2lnbiUyMG1hcmtldGluZ3xlbnwxfHx8fDE3NTkyMTU2MzJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'chatgpt-marketing',
+        subject_id: 'marketing',
+        name: 'ChatGPT',
+        description: 'AI assistant for marketing copy, campaign ideas, and content creation',
+        advantages: [
+          'Sterke tekstgenerator voor alle content types',
+          'Ideeën voor campagnes en strategieën',
+          'Script writing en SEO content',
+          'Ondersteunt multiple talen'
+        ],
+        disadvantages: [
+          'Kan oppervlakkig zijn zonder context',
+          'Mist diep inzicht in merkstrategie',
+          'Vereist fact-checking en editing'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1751448582395-27fc57293f1a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBSSUyMGNoYXRib3QlMjBjb252ZXJzYXRpb258ZW58MXx8fHwxNzU5MjE1NjM1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'google-ads-ai',
+        subject_id: 'marketing',
+        name: 'Google Ads AI features',
+        description: 'AI-powered advertising optimization and targeting within Google Ads platform',
+        advantages: [
+          'Automatische campagne optimalisatie',
+          'Geavanceerde targeting mogelijkheden',
+          'Data-gedreven beslissingen',
+          'Real-time bidding optimization'
+        ],
+        disadvantages: [
+          'Afhankelijk van Google\'s algoritme',
+          'Weinig transparantie in beslissingen',
+          'Vereist groot budget voor beste resultaten'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1631270315847-f418bde47ca6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxnb29nbGUlMjBhZHMlMjBhZHZlcnRpc2luZ3xlbnwxfHx8fDE3NTkyMTU2Mzh8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      
+      // Video Editing/Production
+      {
+        id: 'descript-video',
+        subject_id: 'video',
+        name: 'Descript',
+        description: 'AI-powered video editing through text manipulation and voice cloning',
+        advantages: [
+          'Video bewerken via tekst editing',
+          'Automatisch stiltes verwijderen',
+          'AI voice cloning functionaliteit',
+          'Perfecte tool voor podcasts en tutorials'
+        ],
+        disadvantages: [
+          'Niet geschikt voor filmische edits',
+          'Beperkt voor creatieve video producties',
+          'Werkt vooral goed voor talking head content'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1732327390234-c78eb47d1b88?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aWRlbyUyMGVkaXRpbmclMjBwcm9kdWN0aW9ufGVufDF8fHx8MTc1OTIwOTY5NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'capcut-video',
+        subject_id: 'video',
+        name: 'CapCut',
+        description: 'Free AI-powered mobile video editing app perfect for social media content',
+        advantages: [
+          'Gratis te gebruiken',
+          'Snelle AI-effecten en filters',
+          'Automatische ondertiteling',
+          'Ideaal voor TikTok en Instagram content'
+        ],
+        disadvantages: [
+          'Minder professioneel voor high-end video',
+          'Soms watermerken op exports',
+          'Beperkte advanced editing features'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1659353672237-91826f496791?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2JpbGUlMjB2aWRlbyUyMGVkaXRpbmclMjBhcHB8ZW58MXx8fHwxNzU5MjE1NjQ0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'wisecut-video',
+        subject_id: 'video',
+        name: 'Wisecut',
+        description: 'AI video editor that automatically cuts silences and optimizes pacing',
+        advantages: [
+          'Knipt automatisch stiltes en pauzes',
+          'Maakt snelle social media edits',
+          'Tijdbesparend voor content creators',
+          'Automatische muziek synchronisatie'
+        ],
+        disadvantages: [
+          'Beperkt qua creatieve vrijheid',
+          'Niet ideaal voor lange producties',
+          'Minder controle over final cut'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1732327390234-c78eb47d1b88?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aWRlbyUyMGVkaXRpbmclMjBwcm9kdWN0aW9ufGVufDF8fHx8MTc1OTIwOTY5NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'flexclip-video',
+        subject_id: 'video',
+        name: 'FlexClip',
+        description: 'AI-powered text-to-video creation platform for quick video production',
+        advantages: [
+          'Tekst-naar-video conversie',
+          'Eenvoudig in gebruik',
+          'Grote template bibliotheek',
+          'Goede stock video integratie'
+        ],
+        disadvantages: [
+          'Outputs zijn vaak standaard',
+          'Minder filmische kwaliteit',
+          'Beperkte customization opties'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1732327390234-c78eb47d1b88?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aWRlbyUyMGVkaXRpbmclMjBwcm9kdWN0aW9ufGVufDF8fHx8MTc1OTIwOTY5NHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      
+      // Game Art / 3D Modeling
+      {
+        id: 'layer-ai-gameart',
+        subject_id: 'gameart',
+        name: 'Layer.ai',
+        description: 'AI-powered 2D game asset generation with style training capabilities',
+        advantages: [
+          'Snel 2D game assets genereren',
+          'Trainbaar op eigen art style',
+          'Consistente character designs',
+          'Goede integratie workflows'
+        ],
+        disadvantages: [
+          'Outputs niet direct klaar voor game engines',
+          'Vereist nabewerking voor implementatie',
+          'Beperkt tot 2D assets'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1596088359637-8d614753fb28?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHwzRCUyMG1vZGVsaW5nJTIwZ2FtZSUyMGFydHxlbnwxfHx8fDE3NTkyMTU2NDl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'inworld-ai-npc',
+        subject_id: 'gameart',
+        name: 'InWorld AI (NPCs)',
+        description: 'AI-powered NPC dialogue and behavior system for immersive game characters',
+        advantages: [
+          'Levensechte NPC dialogen en gedrag',
+          'Plug-and-play integratie',
+          'Dynamische conversaties',
+          'Emotioneel intelligente characters'
+        ],
+        disadvantages: [
+          'Performance-zwaar voor real-time gebruik',
+          'Moeilijk te finetunen voor unieke game werelden',
+          'Hoge kosten voor uitgebreide implementatie'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1673350808686-209dc177c898?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBSSUyMGdhbWUlMjBkZXZlbG9wbWVudHxlbnwxfHx8fDE3NTkyMTU2NTN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'stable-diffusion-concept',
+        subject_id: 'gameart',
+        name: 'Stable Diffusion / Midjourney (Concept Art)',
+        description: 'AI image generators for rapid game concept art and visual development',
+        advantages: [
+          'Razendsnel concept art maken',
+          'Enorme stijlvariatie mogelijk',
+          'Goede inspiratie tool',
+          'Open-source opties beschikbaar'
+        ],
+        disadvantages: [
+          'Inconsistente resultaten tussen prompts',
+          'Nabewerking nodig voor game bruikbaarheid',
+          'Moeilijk voor character consistency'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1754229164665-9ea0d5579063?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaWRqb3VybmV5JTIwQUklMjBhcnR8ZW58MXx8fHwxNzU5MjE1NjU2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      
+      // Social Media
+      {
+        id: 'canva-ai-social',
+        subject_id: 'social',
+        name: 'Canva AI',
+        description: 'AI-powered social media content creation with automated scheduling',
+        advantages: [
+          'Makkelijk social media posts maken',
+          'AI-generated captions en hashtags',
+          'Scheduling integratie met platforms',
+          'Template optimalisatie per platform'
+        ],
+        disadvantages: [
+          'Outputs kunnen te "template-achtig" worden',
+          'Beperkte brand customization',
+          'Herkenbare Canva stijl'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1572814392266-1620040c58be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2NpYWwlMjBtZWRpYSUyMGNvbnRlbnQlMjBjcmVhdGlvbnxlbnwxfHx8fDE3NTkxOTE3NDl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'capcut-social',
+        subject_id: 'social',
+        name: 'CapCut',
+        description: 'Perfect AI video editor for creating engaging social media reels and shorts',
+        advantages: [
+          'Perfecte tool voor snelle reels en shorts',
+          'Veel AI effecten en transitions',
+          'Trending templates en sounds',
+          'Automatische format optimalisatie'
+        ],
+        disadvantages: [
+          'Standaard filters kunnen goedkoop lijken',
+          'Beperkte professionele editing features',
+          'Afhankelijk van trending effects'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1659353672237-91826f496791?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2JpbGUlMjB2aWRlbyUyMGVkaXRpbmclMjBhcHB8ZW58MXx8fHwxNzU5MjE1NjQ0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'buffer-hootsuite-ai',
+        subject_id: 'social',
+        name: 'Buffer/Hootsuite (met AI)',
+        description: 'AI-enhanced social media management platforms with smart scheduling',
+        advantages: [
+          'AI optimaliseert posting timing',
+          'Geïntegreerde contentkalender',
+          'Analytics en performance insights',
+          'Multi-platform management'
+        ],
+        disadvantages: [
+          'Premium abonnementen zijn duur',
+          'Afhankelijk van AI-suggesties',
+          'Leercurve voor geavanceerde features'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1572814392266-1620040c58be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb2NpYWwlMjBtZWRpYSUyMGNvbnRlbnQlMjBjcmVhdGlvbnxlbnwxfHx8fDE3NTkxOTE3NDl8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      
+      // Game Design
+      {
+        id: 'unity-ml-agents',
+        subject_id: 'gamedesign',
+        name: 'Unity ML-Agents',
+        description: 'Machine learning framework for training intelligent AI agents in Unity games',
+        advantages: [
+          'AI-tegenstanders trainen en simuleren',
+          'Complexe simulaties kunnen draaien',
+          'Integratie met Unity workflow',
+          'Open-source en gratis'
+        ],
+        disadvantages: [
+          'Vraagt veel technische ML kennis',
+          'Steile leercurve voor beginners',
+          'Vereist krachtige hardware voor training'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1665142726875-f931a29dcee3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml0eSUyMGdhbWUlMjBlbmdpbmV8ZW58MXx8fHwxNzU5MjE1NjYzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'ai-prototyping-tools',
+        subject_id: 'gamedesign',
+        name: 'AI Prototyping Tools (ChatGPT voor ideeën)',
+        description: 'AI assistants for generating game mechanics, storylines, and design concepts',
+        advantages: [
+          'Inspiratie voor game mechanics en features',
+          'Snelle level design ideeën',
+          'Storyline en character development',
+          'Brainstorming partner'
+        ],
+        disadvantages: [
+          'Vaak oppervlakkige suggesties',
+          'Weinig begrip voor "fun factor"',
+          'Vereist game design expertise voor filtering'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1673350808686-209dc177c898?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxBSSUyMGdhbWUlMjBkZXZlbG9wbWVudHxlbnwxfHx8fDE3NTkyMTU2NTN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      
+      // VR Development
+      {
+        id: 'nvidia-audio2face',
+        subject_id: 'vr',
+        name: 'Nvidia Audio2Face',
+        description: 'AI-powered facial animation system that creates realistic expressions from audio',
+        advantages: [
+          'Realistische gezichtsanimatie vanuit voice input',
+          'Tijdbesparend voor character animation',
+          'Hoge kwaliteit output',
+          'Goede integratie met 3D pipelines'
+        ],
+        disadvantages: [
+          'Veel GPU-kracht en VRAM nodig',
+          'Outputs niet altijd emotioneel subtiel',
+          'Dure hardware requirements'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1592383010275-b028451b2947?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxWUiUyMHZpcnR1YWwlMjByZWFsaXR5JTIwZGV2ZWxvcG1lbnR8ZW58MXx8fHwxNzU5MjE1NjY2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'ai-scene-generation',
+        subject_id: 'vr',
+        name: 'AI Scene Generation',
+        description: 'AI tools for generating 3D environments and scenes for VR applications',
+        advantages: [
+          'Sneller VR omgevingen maken',
+          'Variatie in scene generation',
+          'Inspiratie voor environment design',
+          'Prototype snelheid verhogen'
+        ],
+        disadvantages: [
+          '3D modellen vaak zwaar voor VR',
+          'Niet direct VR-ready output',
+          'Optimalisatie vereist voor performance'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1592383010275-b028451b2947?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxWUiUyMHZpcnR1YWwlMjByZWFsaXR5JTIwZGV2ZWxvcG1lbnR8ZW58MXx8fHwxNzU5MjE1NjY2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      
+      // Brand Design
+      {
+        id: 'looka-brand-design',
+        subject_id: 'brand',
+        name: 'Looka',
+        description: 'Comprehensive AI-powered brand identity generator with logo and style guides',
+        advantages: [
+          'Alles-in-één brand kit (logo, kleuren, fonts)',
+          'Snelle brand identity ontwikkeling',
+          'Professionele templates',
+          'Betaalbaar voor kleine bedrijven'
+        ],
+        disadvantages: [
+          'Vaak niet uniek genoeg',
+          'Minder geschikt voor premium merken',
+          'Template-gebaseerde benadering'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1670341445620-cc35bf57fe56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsb2dvJTIwZGVzaWduJTIwYnJhbmRpbmd8ZW58MXx8fHwxNzU5MTQwNTM2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'brandmark-io',
+        subject_id: 'brand',
+        name: 'Brandmark.io',
+        description: 'AI logo generator focused on creating simple, clean brand identities',
+        advantages: [
+          'Simpele, schone logo designs',
+          'Snelle brand identiteit creatie',
+          'Goede typografie integratie',
+          'Vector outputs'
+        ],
+        disadvantages: [
+          'Outputs vaak te standaard',
+          'Niet onderscheidend genoeg',
+          'Beperkte customization na generatie'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1670341445620-cc35bf57fe56?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsb2dvJTIwZGVzaWduJTIwYnJhbmRpbmd8ZW58MXx8fHwxNzU5MTQwNTM2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'coolors-fontjoy',
+        subject_id: 'brand',
+        name: 'Coolors / Fontjoy (AI paletten & typografie)',
+        description: 'AI-powered color palette and font pairing generators for brand design',
+        advantages: [
+          'Snelle kleur combinaties genereren',
+          'Handig bij designer\'s block',
+          'Goede font pairing suggesties',
+          'Gratis basis functionaliteiten'
+        ],
+        disadvantages: [
+          'Mist merkcontext en strategy',
+          'Kan brand mismatch veroorzaken',
+          'Oppervlakkige kleur psychologie'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1650402268468-7526b2502a04?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvciUyMHBhbGV0dGUlMjBkZXNpZ258ZW58MXx8fHwxNzU5MTQ0NDI0fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      
+      // Content Design
+      {
+        id: 'designs-ai',
+        subject_id: 'content',
+        name: 'Designs.ai',
+        description: 'All-in-one AI platform for creating banners, videos, and social media content',
+        advantages: [
+          'All-in-one tool voor verschillende content types',
+          'Snelle banner en video creatie',
+          'Geïntegreerde social media templates',
+          'Consistent design systeem'
+        ],
+        disadvantages: [
+          'Outputs vaak generiek en herkenbaar',
+          'Weinig creatieve vrijheid',
+          'Template-afhankelijke workflow'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1649091245823-18be815da4f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYW52YSUyMGRlc2lnbiUyMG1hcmtldGluZ3xlbnwxfHx8fDE3NTkyMTU2MzJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'canva-ai-content',
+        subject_id: 'content',
+        name: 'Canva AI',
+        description: 'AI-enhanced content creation with smart templates and automated design suggestions',
+        advantages: [
+          'Snel content maken met AI assistentie',
+          'Geïntegreerd met stock photos en graphics',
+          'Template intelligentie',
+          'Multi-format export mogelijkheden'
+        ],
+        disadvantages: [
+          'Vaak "één stijl" herkenbaar',
+          'Minder uniek dan custom design',
+          'Template beperkingen'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1649091245823-18be815da4f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYW52YSUyMGRlc2lnbiUyMG1hcmtldGluZ3xlbnwxfHx8fDE3NTkyMTU2MzJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      
+      // Art Design
+      {
+        id: 'midjourney-art',
+        subject_id: 'art',
+        name: 'Midjourney',
+        description: 'Leading AI art generator known for highly creative and artistic image generation',
+        advantages: [
+          'Extreem creatieve en artistieke beelden',
+          'Snel en inspirerend',
+          'Artistiek zeer sterk',
+          'Actieve community en updates'
+        ],
+        disadvantages: [
+          'Werkt via Discord (niet gebruiksvriendelijk)',
+          'Lastig voor beginners',
+          'Niet 100% commercieel veilig',
+          'Subscription vereist'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1754229164665-9ea0d5579063?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaWRqb3VybmV5JTIwQUklMjBhcnR8ZW58MXx8fHwxNzU5MjE1NjU2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'stable-diffusion-art',
+        subject_id: 'art',
+        name: 'Stable Diffusion',
+        description: 'Open-source AI art generator with extensive customization and model options',
+        advantages: [
+          'Open-source en gratis te gebruiken',
+          'Veel custom modellen beschikbaar',
+          'Oneindig aanpasbaar',
+          'Lokaal te draaien (privacy)'
+        ],
+        disadvantages: [
+          'Technische installatie vereist',
+          'Kwaliteit varieert per model',
+          'Steile leercurve voor beginners'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1754229164665-9ea0d5579063?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdGFibGUlMjBkaWZmdXNpb24lMjBBSSUyMGFydHxlbnwxfHx8fDE3NTkyMTU2NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'adobe-firefly-art',
+        subject_id: 'art',
+        name: 'Adobe Firefly (art)',
+        description: 'Adobe\'s AI art generator with commercial-safe datasets and Creative Suite integration',
+        advantages: [
+          'Veilige datasets voor commercieel gebruik',
+          'Professionele integratie met Adobe tools',
+          'Commercieel bruikbaar zonder zorgen',
+          'Consistent en betrouwbaar'
+        ],
+        disadvantages: [
+          'Stijlen beperkter dan Midjourney',
+          'Minder artistieke vrijheid',
+          'Adobe subscription vereist'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1740174459730-33a1983b51af?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZG9iZSUyMGZpcmVmbHklMjBBSSUyMGRlc2lnbnxlbnwxfHx8fDE3NTkyMTU2MjJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      
+      // Media Production (DTP)
+      {
+        id: 'adobe-indesign-ai',
+        subject_id: 'dtp',
+        name: 'Adobe InDesign + AI plugins',
+        description: 'Professional desktop publishing with AI-powered layout and content suggestions',
+        advantages: [
+          'Professionele DTP mogelijkheden',
+          'AI helpt met layout automatisering',
+          'Geavanceerde typografie controle',
+          'Print-ready output kwaliteit'
+        ],
+        disadvantages: [
+          'Hoge licentiekosten',
+          'Steile leercurve voor beginners',
+          'Overkill voor simpele projecten'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1688582139492-734f3d3746d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEVFAlMjBkZXNrdG9wJTIwcHVibGlzaGluZ3xlbnwxfHx8fDE3NTkyMTU2NzN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      },
+      {
+        id: 'canva-dtp',
+        subject_id: 'dtp',
+        name: 'Canva (DTP)',
+        description: 'User-friendly design platform for creating print materials and publications',
+        advantages: [
+          'Eenvoudig te gebruiken interface',
+          'Snelle flyers en brochures maken',
+          'Template bibliotheek voor print',
+          'Betaalbaar alternatief'
+        ],
+        disadvantages: [
+          'Niet geschikt voor geavanceerd drukwerk',
+          'Beperkte resolutie en kleurprofielen',
+          'Minder professionele print output'
+        ],
+        image_url: 'https://images.unsplash.com/photo-1688582139492-734f3d3746d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxEVFAlMjBkZXNrdG9wJTIwcHVibGlzaGluZ3xlbnwxfHx8fDE3NTkyMTU2NzN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral'
+      }
+    ];
+
+    // Get existing tools to avoid duplicates
+    const existingTools = await kv.get('ai_tools') || [];
+    
+    // Filter out tools that already exist (by id)
+    const existingIds = existingTools.map(tool => tool.id);
+    const toolsToAdd = newTools.filter(tool => !existingIds.includes(tool.id));
+    
+    if (toolsToAdd.length === 0) {
+      return c.json({ message: 'All tools already exist in database', added: 0 });
+    }
+
+    // Add new tools to existing ones
+    const updatedTools = [...existingTools, ...toolsToAdd];
+    await kv.set('ai_tools', updatedTools);
+    
+    return c.json({ 
+      success: true, 
+      message: `Successfully added ${toolsToAdd.length} new AI tools`,
+      added: toolsToAdd.length,
+      total: updatedTools.length
+    });
+  } catch (error) {
+    console.log('Error bulk importing tools:', error);
+    return c.json({ error: 'Failed to bulk import tools' }, 500);
   }
 });
 

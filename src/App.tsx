@@ -24,6 +24,7 @@ export interface AITool {
   advantages: string[];
   disadvantages: string[];
   image_url: string;
+  link_url?: string;
 }
 
 function AppContent() {

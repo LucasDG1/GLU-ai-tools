@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AITool } from '../App';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { CheckCircle, XCircle, ExternalLink, Star, MessageCircle, Upload, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle, XCircle, ExternalLink, MessageCircle, Upload, ChevronDown, ChevronUp } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ReviewSection } from './ReviewSection';
 import { FileUpload } from './FileUpload';
@@ -21,40 +21,53 @@ export function AIToolCard({ tool, subjectName }: AIToolCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let ctx: any;
+    
     const initAnimations = async () => {
-      if (typeof window !== 'undefined') {
-        const { gsap } = await import('gsap');
-        const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-        
-        gsap.registerPlugin(ScrollTrigger);
-        
-        gsap.fromTo(cardRef.current, 
-          { 
-            opacity: 0, 
-            y: 50 
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.8,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: cardRef.current,
-              start: "top 90%",
-              toggleActions: "play none none reverse"
-            }
-          }
-        );
+      if (typeof window !== 'undefined' && cardRef.current) {
+        try {
+          const { gsap } = await import('gsap');
+          const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+          
+          gsap.registerPlugin(ScrollTrigger);
+          ctx = gsap.context(() => {
+            gsap.fromTo(cardRef.current, 
+              { 
+                opacity: 0, 
+                y: 20  // Reduced from 50px to 20px
+              },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.4,  // Reduced from 0.8s to 0.4s
+                ease: "power2.out",  // Softer easing
+                scrollTrigger: {
+                  trigger: cardRef.current,
+                  start: "top 95%",  // Start animation later
+                  toggleActions: "play none none none"  // Remove reverse to prevent re-animation
+                }
+              }
+            );
+          }, cardRef);
+        } catch (error) {
+          console.warn('GSAP animation failed to load:', error);
+        }
       }
     };
 
     initAnimations();
+
+    return () => {
+      if (ctx) {
+        ctx.revert();
+      }
+    };
   }, []);
 
   return (
     <div 
       ref={cardRef}
-      className="bg-white shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+      className="bg-white shadow-lg hover:shadow-xl transition-all duration-200 overflow-hidden"
     >
       {/* Main Card Content */}
       <div className="p-6">
@@ -63,14 +76,24 @@ export function AIToolCard({ tool, subjectName }: AIToolCardProps) {
             <ImageWithFallback
               src={tool.image_url}
               alt={tool.name}
-              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover hover:scale-102 transition-transform duration-200"
             />
           </div>
         )}
         
         <div className="flex items-start justify-between mb-4">
           <h3 className="text-2xl font-bold text-gray-900 line-clamp-2">{tool.name}</h3>
-          <ExternalLink className="text-glu-gray hover:text-glu-orange cursor-pointer flex-shrink-0 ml-3 transition-colors" size={20} />
+          {tool.link_url && (
+            <a
+              href={tool.link_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-glu-gray hover:text-glu-orange cursor-pointer flex-shrink-0 ml-3 transition-colors"
+              title={`Visit ${tool.name}`}
+            >
+              <ExternalLink size={20} />
+            </a>
+          )}
         </div>
         
         <Badge className="bg-glu-green text-white mb-4">

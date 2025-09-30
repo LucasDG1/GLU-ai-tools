@@ -20,27 +20,41 @@ export function SearchResults({ results, query, subjects }: SearchResultsProps) 
   };
 
   useEffect(() => {
+    let ctx: any;
+    
     const initAnimations = async () => {
       if (typeof window !== 'undefined' && resultsRef.current) {
-        const { gsap } = await import('gsap');
-        
-        gsap.fromTo(resultsRef.current.children,
-          { 
-            opacity: 0, 
-            y: 30 
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            stagger: 0.1,
-            ease: "power3.out"
-          }
-        );
+        try {
+          const { gsap } = await import('gsap');
+          
+          ctx = gsap.context(() => {
+            gsap.fromTo(resultsRef.current!.children,
+              { 
+                opacity: 0, 
+                y: 15  // Reduced from 30px
+              },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.3,  // Reduced from 0.6s
+                stagger: 0.05,  // Reduced from 0.1s
+                ease: "power2.out"  // Softer easing
+              }
+            );
+          }, resultsRef);
+        } catch (error) {
+          console.warn('GSAP animation failed to load:', error);
+        }
       }
     };
 
     initAnimations();
+
+    return () => {
+      if (ctx) {
+        ctx.revert();
+      }
+    };
   }, [results]);
 
   return (

@@ -32,52 +32,48 @@ export function SubjectSection({ subject, tools, onRefresh }: SubjectSectionProp
   const icon = subjectIcons[subject.id] || '🔧';
 
   useEffect(() => {
+    let ctx: any;
+    
     const initAnimations = async () => {
-      if (typeof window !== 'undefined') {
-        const { gsap } = await import('gsap');
-        const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-        
-        gsap.registerPlugin(ScrollTrigger);
-        
-        // Section title animation
-        gsap.fromTo(titleRef.current,
-          { 
-            opacity: 0, 
-            x: -100 
-          },
-          {
-            opacity: 1,
-            x: 0,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: titleRef.current,
-              start: "top 85%",
-              toggleActions: "play none none reverse"
-            }
-          }
-        );
-
-        // Section background animation
-        gsap.fromTo(sectionRef.current,
-          { 
-            backgroundColor: "transparent" 
-          },
-          {
-            backgroundColor: "rgba(244, 244, 244, 0.3)",
-            duration: 0.5,
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top 50%",
-              end: "bottom 50%",
-              toggleActions: "play reverse play reverse"
-            }
-          }
-        );
+      if (typeof window !== 'undefined' && titleRef.current) {
+        try {
+          const { gsap } = await import('gsap');
+          const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+          
+          gsap.registerPlugin(ScrollTrigger);
+          ctx = gsap.context(() => {
+            // Only animate the title with a subtle fade-in
+            gsap.fromTo(titleRef.current,
+              { 
+                opacity: 0, 
+                y: 15  // Reduced from x: -100 to y: 15 for subtler effect
+              },
+              {
+                opacity: 1,
+                y: 0,
+                duration: 0.5,  // Reduced from 1s
+                ease: "power2.out",  // Softer easing
+                scrollTrigger: {
+                  trigger: titleRef.current,
+                  start: "top 90%",  // Start later
+                  toggleActions: "play none none none"  // Remove reverse
+                }
+              }
+            );
+          }, titleRef);
+        } catch (error) {
+          console.warn('GSAP animation failed to load:', error);
+        }
       }
     };
 
     initAnimations();
+
+    return () => {
+      if (ctx) {
+        ctx.revert();
+      }
+    };
   }, []);
 
   return (
@@ -130,9 +126,9 @@ export function SubjectSection({ subject, tools, onRefresh }: SubjectSectionProp
             <div className="inline-flex items-center space-x-3 text-glu-orange">
               <span className="font-medium">Coming Soon</span>
               <div className="flex space-x-1">
-                <div className="w-3 h-3 bg-glu-orange rounded-full animate-bounce"></div>
-                <div className="w-3 h-3 bg-glu-orange rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-3 h-3 bg-glu-orange rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-3 h-3 bg-glu-orange rounded-full animate-gentle-bounce"></div>
+                <div className="w-3 h-3 bg-glu-orange rounded-full animate-gentle-bounce animate-delay-100"></div>
+                <div className="w-3 h-3 bg-glu-orange rounded-full animate-gentle-bounce animate-delay-200"></div>
               </div>
             </div>
           </div>

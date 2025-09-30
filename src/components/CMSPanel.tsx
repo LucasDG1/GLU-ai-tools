@@ -28,6 +28,7 @@ interface ToolFormData {
   advantages: string;
   disadvantages: string;
   image_url: string;
+  link_url: string;
 }
 
 interface Review {
@@ -60,7 +61,8 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
     description: '',
     advantages: '',
     disadvantages: '',
-    image_url: ''
+    image_url: '',
+    link_url: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -108,7 +110,8 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
       description: '',
       advantages: '',
       disadvantages: '',
-      image_url: ''
+      image_url: '',
+      link_url: ''
     });
     setEditingTool(null);
   };
@@ -126,7 +129,8 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
       description: tool.description,
       advantages: tool.advantages.join('\n'),
       disadvantages: tool.disadvantages.join('\n'),
-      image_url: tool.image_url
+      image_url: tool.image_url,
+      link_url: tool.link_url || ''
     });
     setIsDialogOpen(true);
   };
@@ -152,7 +156,8 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
         description: formData.description.trim(),
         advantages: formData.advantages.split('\n').filter(a => a.trim()).map(a => a.trim()),
         disadvantages: formData.disadvantages.split('\n').filter(d => d.trim()).map(d => d.trim()),
-        image_url: formData.image_url.trim()
+        image_url: formData.image_url.trim(),
+        link_url: formData.link_url.trim()
       };
 
       const url = editingTool 
@@ -305,13 +310,14 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
           </p>
         </div>
         
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={openCreateDialog} className="bg-glu-orange text-white hover:bg-glu-orange/90">
-              <Plus size={16} className="mr-2" />
-              {t('cms.add')} Tool
-            </Button>
-          </DialogTrigger>
+        <div className="flex items-center space-x-3">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={openCreateDialog} className="bg-glu-orange text-white hover:bg-glu-orange/90">
+                <Plus size={16} className="mr-2" />
+                {t('cms.add')} Tool
+              </Button>
+            </DialogTrigger>
           
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -362,14 +368,26 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="image_url">{t('common.image')} URL (optional)</Label>
-                <Input
-                  id="image_url"
-                  value={formData.image_url}
-                  onChange={(e) => handleChange('image_url', e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                />
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="image_url">{t('common.image')} URL (optional)</Label>
+                  <Input
+                    id="image_url"
+                    value={formData.image_url}
+                    onChange={(e) => handleChange('image_url', e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="link_url">AI Tool Website URL (optional)</Label>
+                  <Input
+                    id="link_url"
+                    value={formData.link_url}
+                    onChange={(e) => handleChange('link_url', e.target.value)}
+                    placeholder="https://chatgpt.com"
+                  />
+                </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -425,6 +443,7 @@ export function CMSPanel({ subjects, aiTools, onRefresh }: CMSPanelProps) {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">

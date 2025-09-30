@@ -210,6 +210,7 @@ html {
 
 /* Smooth animations */
 .transition-smooth { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.transition-quick { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
 
 /* Line clamp utilities */
 .line-clamp-2 {
@@ -260,7 +261,7 @@ body, html {
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);  /* Reduced from 30px */
   }
   to {
     opacity: 1;
@@ -270,19 +271,36 @@ body, html {
 
 @keyframes subtlePulse {
   0%, 100% {
-    opacity: 0.3;
+    opacity: 0.4;  /* Increased from 0.3 for visibility */
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.7;  /* Increased from 0.5 for visibility */
+  }
+}
+
+/* Gentler bounce animation for loading states */
+@keyframes gentleBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);  /* Reduced from default bounce */
+  }
+  60% {
+    transform: translateY(-4px);
   }
 }
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.8s ease-out forwards;
+  animation: fadeInUp 0.5s ease-out forwards;  /* Reduced from 0.8s */
 }
 
 .animate-subtle-pulse {
-  animation: subtlePulse 4s ease-in-out infinite;
+  animation: subtlePulse 3s ease-in-out infinite;  /* Reduced from 4s */
+}
+
+.animate-gentle-bounce {
+  animation: gentleBounce 1.5s infinite;
 }
 
 /* Prevent repeated animations by using animation-fill-mode */
@@ -290,11 +308,12 @@ body, html {
   animation-fill-mode: forwards;
 }
 
-/* Animation delays for stagger effects - single use */
+/* Animation delays for stagger effects - reduced delays */
 .animate-delay-100 { animation-delay: 100ms; }
 .animate-delay-200 { animation-delay: 200ms; }
 .animate-delay-300 { animation-delay: 300ms; }
-.animate-delay-500 { animation-delay: 500ms; }
-.animate-delay-700 { animation-delay: 700ms; }
-.animate-delay-1000 { animation-delay: 1000ms; }
-.animate-delay-2000 { animation-delay: 2000ms; }
+
+/* Scale utility for subtle hover effects */
+.hover\:scale-102:hover {
+  transform: scale(1.02);
+}
